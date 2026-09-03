@@ -309,7 +309,7 @@
           </div>
         </div>
 
-        <form class="contact-form" id="contact-form" name="contacto" method="POST" data-netlify="true" netlify netlify-honeypot="bot-field">
+        <form class="contact-form" id="contact-form" name="contacto" method="POST" data-netlify="true" netlify netlify-honeypot="bot-field" novalidate>
           <input type="hidden" name="form-name" value="contacto" />
           <p class="contact-form-hp">
             <label>No completar: <input name="bot-field" /></label>
@@ -317,12 +317,21 @@
 
           <label for="cf-nombre">Nombre y Apellido</label>
           <input type="text" id="cf-nombre" name="nombre" placeholder="Nombre y Apellido" autocomplete="name" required />
+          <span class="field-error" id="cf-nombre-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
           <label for="cf-email">Email</label>
           <input type="email" id="cf-email" name="email" placeholder="tu@mail.com" autocomplete="email" required />
+          <span class="field-error" id="cf-email-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
           <label for="cf-mensaje">Mensaje</label>
           <textarea id="cf-mensaje" name="mensaje" placeholder="Escribí tu consulta" required></textarea>
+          <span class="field-error" id="cf-mensaje-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
+
+          <div class="contact-form-consent">
+            <input type="checkbox" id="cf-consentimiento" name="consentimiento" value="Acepta los Términos y Condiciones y la Política de Privacidad" required />
+            <label for="cf-consentimiento">He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a> del sitio.</label>
+          </div>
+          <span class="field-error" id="cf-consentimiento-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
           <button type="submit">Enviar</button>
           <p class="contact-form-status" id="contact-form-status" role="status" aria-live="polite"></p>

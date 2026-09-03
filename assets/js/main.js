@@ -77,8 +77,74 @@ function initContactForm() {
   const contactStatus = document.getElementById('contact-form-status');
   if (!contactForm) return;
 
+  const fieldMessages = {
+    'cf-nombre': { valueMissing: 'Completá tu nombre y apellido.' },
+    'cf-email': {
+      valueMissing: 'Completá tu email.',
+      typeMismatch: 'Ingresá un email válido.',
+    },
+    'cf-mensaje': { valueMissing: 'Contanos tu consulta.' },
+    'cf-consentimiento': {
+      valueMissing: 'Tenés que aceptar los Términos y Condiciones y la Política de Privacidad para enviar el formulario.',
+    },
+  };
+
+  const requiredFields = Array.from(
+    contactForm.querySelectorAll('#cf-nombre, #cf-email, #cf-mensaje, #cf-consentimiento')
+  );
+
+  function getErrorMessage(field) {
+    const messages = fieldMessages[field.id] || {};
+    if (field.validity.valueMissing) return messages.valueMissing || 'Este campo es obligatorio.';
+    if (field.validity.typeMismatch) return messages.typeMismatch || 'El valor ingresado no es válido.';
+    return 'El valor ingresado no es válido.';
+  }
+
+  function styleTargetFor(field) {
+    return field.type === 'checkbox' ? field.closest('.contact-form-consent') : field;
+  }
+
+  function showFieldError(field) {
+    const errorEl = document.getElementById(`${field.id}-error`);
+    if (errorEl) {
+      errorEl.querySelector('.field-error-text').textContent = getErrorMessage(field);
+      errorEl.classList.add('is-visible');
+    }
+    const styleTarget = styleTargetFor(field);
+    if (styleTarget) styleTarget.classList.add('has-error');
+  }
+
+  function clearFieldError(field) {
+    const errorEl = document.getElementById(`${field.id}-error`);
+    if (errorEl) errorEl.classList.remove('is-visible');
+    const styleTarget = styleTargetFor(field);
+    if (styleTarget) styleTarget.classList.remove('has-error');
+  }
+
+  requiredFields.forEach((field) => {
+    const eventName = field.type === 'checkbox' ? 'change' : 'input';
+    field.addEventListener(eventName, () => {
+      if (field.checkValidity()) clearFieldError(field);
+    });
+  });
+
   contactForm.addEventListener('submit', (event) => {
     event.preventDefault();
+
+    let firstInvalid = null;
+    requiredFields.forEach((field) => {
+      if (field.checkValidity()) {
+        clearFieldError(field);
+      } else {
+        showFieldError(field);
+        if (!firstInvalid) firstInvalid = field;
+      }
+    });
+
+    if (firstInvalid) {
+      firstInvalid.focus();
+      return;
+    }
 
     const data = new FormData(contactForm);
     contactStatus.textContent = 'Enviando...';

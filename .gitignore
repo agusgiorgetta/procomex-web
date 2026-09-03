@@ -15,6 +15,6 @@ desktop.ini
 # Logs
 *.log
 
-# Entorno / secretos (por si en algún momento se agregan)
+# Entorno
 .env
 .env.local

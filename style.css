@@ -30,6 +30,10 @@
   --color-card-bg: rgba(253, 253, 253, 0.58);
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
 
+  /* Error de validación (formulario de contacto) */
+  --color-error: #e35555;
+  --color-error-rgb: 227, 85, 85;
+
   /* Tipografías */
   --font-serif: 'Libre Baskerville', 'Bookman Old Style', serif;
   --font-sans: 'DM Sans', sans-serif;
@@ -1066,6 +1070,75 @@ footer {
 
 .contact-form textarea {
   min-height: 110px;
+}
+
+.field-error {
+  display: none;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-error);
+}
+
+.field-error.is-visible {
+  display: flex;
+}
+
+.field-error-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-form input.has-error,
+.contact-form textarea.has-error {
+  border-color: var(--color-error);
+  background: rgba(var(--color-error-rgb), 0.06);
+}
+
+.contact-form-consent.has-error label {
+  color: var(--color-error);
+}
+
+.contact-form-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.contact-form-consent input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  accent-color: var(--color-gold);
+  cursor: pointer;
+}
+
+.contact-form-consent label {
+  margin-top: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.contact-form-consent a {
+  color: var(--color-gold);
+  text-decoration: underline;
 }
 
 .contact-form button {
