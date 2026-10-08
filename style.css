@@ -1290,6 +1290,205 @@ footer {
   text-decoration-color: currentColor;
 }
 
+.footer .cookie-settings-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--color-gold-rgb), 0.35);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.footer .cookie-settings-link:hover {
+  color: var(--color-gold);
+  text-decoration-color: currentColor;
+}
+
+/* =========================
+   AVISO DE COOKIES
+   (lo arma assets/js/consent.js)
+
+   Barra de lado a lado arriba de la pantalla, con el fondo oscurecido: mientras
+   no se elige, el resto de la página queda bloqueado. Con .is-compact (páginas
+   con <body data-cookie-banner="compact">) la barra va sin fondo, sin bloquear
+   y se va con el scroll, para poder leer la política antes de decidir.
+========================= */
+html.cookie-modal-open,
+html.cookie-modal-open body {
+  overflow: hidden;
+}
+
+.cookie-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: flex-start;
+  background: rgba(8, 5, 5, 0.68);
+  animation: cookieFadeIn 0.25s ease both;
+}
+
+.cookie-overlay[hidden] {
+  display: none;
+}
+
+.cookie-overlay.is-compact {
+  position: absolute;
+  inset: 0 0 auto 0;
+  background: none;
+  pointer-events: none;
+}
+
+.cookie-banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  /* El contenido se centra en 1080px aunque la barra ocupe todo el ancho. */
+  padding: 22px max(20px, calc((100% - 1080px) / 2));
+  border-bottom: 1px solid rgba(var(--color-gold-rgb), 0.5);
+  background: var(--color-bg-dark);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-sans);
+  pointer-events: auto;
+  animation: cookieSlideDown 0.3s ease both;
+}
+
+.cookie-banner:focus {
+  outline: none;
+}
+
+.cookie-banner-title {
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.cookie-banner-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-light-soft);
+}
+
+.cookie-banner-text a {
+  color: var(--color-gold);
+  text-decoration: underline;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Aceptar y Rechazar comparten el mismo estilo: ninguno pesa más que el otro. */
+.cookie-banner-btn {
+  flex: 1;
+  padding: 11px 22px;
+  border: 1px solid var(--color-gold);
+  border-radius: 999px;
+  background: rgba(var(--color-gold-rgb), 0.12);
+  color: var(--color-gold);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cookie-banner-btn:hover {
+  background: rgba(var(--color-gold-rgb), 0.25);
+}
+
+/* La × solo aparece cuando ya hay una elección guardada y se reabre el aviso. */
+.cookie-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-light-soft);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cookie-close:hover {
+  color: var(--color-gold);
+}
+
+.cookie-overlay[data-dismissable="true"] .cookie-close {
+  display: flex;
+}
+
+.cookie-overlay[data-dismissable="true"] .cookie-banner {
+  padding-right: max(52px, calc((100% - 1080px) / 2));
+}
+
+.cookie-banner-btn:focus-visible,
+.cookie-close:focus-visible,
+.cookie-banner-text a:focus-visible,
+.footer .cookie-settings-link:focus-visible {
+  outline: 2px solid var(--color-gold-light);
+  outline-offset: 2px;
+}
+
+@keyframes cookieFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cookieSlideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@media (min-width: 760px) {
+  .cookie-banner {
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .cookie-banner-body {
+    flex: 1;
+  }
+
+  .cookie-banner-actions {
+    flex-shrink: 0;
+  }
+
+  .cookie-banner-btn {
+    flex: none;
+    min-width: 130px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-overlay,
+  .cookie-banner {
+    animation: none;
+  }
+}
+
 /* =========================
    ANIMACIONES AL SCROLL
 ========================= */
