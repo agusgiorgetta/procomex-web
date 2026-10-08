@@ -77,41 +77,58 @@ function initContactForm() {
   const contactStatus = document.getElementById('contact-form-status');
   if (!contactForm) return;
 
-  const fieldMessages = {
-    'cf-nombre': { valueMissing: 'Completá tu nombre y apellido.' },
-    'cf-email': {
-      valueMissing: 'Completá tu email.',
-      typeMismatch: 'Ingresá un email válido.',
-    },
-    'cf-mensaje': { valueMissing: 'Contanos tu consulta.' },
-    'cf-consentimiento': {
-      valueMissing: 'Tenés que aceptar los Términos y Condiciones y la Política de Privacidad para enviar el formulario.',
-    },
+  const submitButton = contactForm.querySelector('button[type="submit"]');
+
+  // Mensaje debajo del botón. type: 'sending', 'success', 'error' o '' (vacío).
+  // El estilo de cada estado está en style.css (.contact-form-status.is-...).
+  function setStatus(type, message) {
+    contactStatus.className = type ? `contact-form-status is-${type}` : 'contact-form-status';
+    contactStatus.textContent = message;
+    if (type === 'success' || type === 'error') contactStatus.scrollIntoView({ block: 'nearest' });
+  }
+
+  // Las reglas de cada campo están en contact-validation.js. Si ese archivo no
+  // cargara, igual se exige que los campos obligatorios no estén vacíos.
+  const rules = window.ProcomexValidation || {};
+  const requiredOnly = (field) => (field.value.trim() ? '' : 'Completá este campo.');
+
+  const validators = {
+    'cf-nombre': (field) => (rules.validateName ? rules.validateName(field.value) : requiredOnly(field)),
+    'cf-email': (field) => (rules.validateEmail ? rules.validateEmail(field.value) : requiredOnly(field)),
+    // Opcional: vacío es válido, y si se completa tiene que parecer un teléfono.
+    'cf-telefono': (field) => (rules.validatePhone ? rules.validatePhone(field.value) : ''),
+    'cf-mensaje': (field) => (rules.validateMessage ? rules.validateMessage(field.value) : requiredOnly(field)),
+    'cf-consentimiento': (field) => (
+      field.checked ? '' : 'Tenés que aceptar los Términos y Condiciones y la Política de Privacidad para enviar el formulario.'
+    ),
   };
 
-  const requiredFields = Array.from(
-    contactForm.querySelectorAll('#cf-nombre, #cf-email, #cf-mensaje, #cf-consentimiento')
+  const fields = Array.from(
+    contactForm.querySelectorAll('#cf-nombre, #cf-email, #cf-telefono, #cf-mensaje, #cf-consentimiento')
   );
 
-  function getErrorMessage(field) {
-    const messages = fieldMessages[field.id] || {};
-    if (field.validity.valueMissing) return messages.valueMissing || 'Este campo es obligatorio.';
-    if (field.validity.typeMismatch) return messages.typeMismatch || 'El valor ingresado no es válido.';
-    return 'El valor ingresado no es válido.';
-  }
+  // aria-describedby original de cada campo (ej. la ayuda del teléfono): el
+  // mensaje de error se suma adelante mientras haya error, y se saca después.
+  const baseDescribedBy = new Map(fields.map((field) => [field, field.getAttribute('aria-describedby')]));
 
   function styleTargetFor(field) {
     return field.type === 'checkbox' ? field.closest('.contact-form-consent') : field;
   }
 
-  function showFieldError(field) {
+  function showFieldError(field, message) {
     const errorEl = document.getElementById(`${field.id}-error`);
     if (errorEl) {
-      errorEl.querySelector('.field-error-text').textContent = getErrorMessage(field);
+      errorEl.querySelector('.field-error-text').textContent = message;
       errorEl.classList.add('is-visible');
     }
     const styleTarget = styleTargetFor(field);
     if (styleTarget) styleTarget.classList.add('has-error');
+
+    field.setAttribute('aria-invalid', 'true');
+    field.setAttribute(
+      'aria-describedby',
+      [`${field.id}-error`, baseDescribedBy.get(field)].filter(Boolean).join(' ')
+    );
   }
 
   function clearFieldError(field) {
@@ -119,26 +136,59 @@ function initContactForm() {
     if (errorEl) errorEl.classList.remove('is-visible');
     const styleTarget = styleTargetFor(field);
     if (styleTarget) styleTarget.classList.remove('has-error');
+
+    field.removeAttribute('aria-invalid');
+    const base = baseDescribedBy.get(field);
+    if (base) {
+      field.setAttribute('aria-describedby', base);
+    } else {
+      field.removeAttribute('aria-describedby');
+    }
   }
 
-  requiredFields.forEach((field) => {
-    const eventName = field.type === 'checkbox' ? 'change' : 'input';
-    field.addEventListener(eventName, () => {
-      if (field.checkValidity()) clearFieldError(field);
+  // Valida un campo y muestra u oculta su error. Devuelve true si está bien.
+  function checkField(field) {
+    const message = validators[field.id](field);
+    if (message) {
+      showFieldError(field, message);
+      return false;
+    }
+    clearFieldError(field);
+    return true;
+  }
+
+  let submitAttempted = false;
+  let isSending = false;
+
+  fields.forEach((field) => {
+    const isCheckbox = field.type === 'checkbox';
+
+    // Mientras escribe, solo se actualiza un error que ya está a la vista.
+    field.addEventListener(isCheckbox ? 'change' : 'input', () => {
+      if (field.getAttribute('aria-invalid') === 'true') checkField(field);
+      if (contactStatus.classList.contains('is-success') || contactStatus.classList.contains('is-error')) {
+        setStatus('', '');
+      }
     });
+
+    // Al salir del campo se valida si ya escribió algo (o si ya intentó enviar),
+    // para no marcar en rojo un campo vacío que apenas se recorrió con Tab.
+    if (!isCheckbox) {
+      field.addEventListener('blur', () => {
+        if (submitAttempted || field.value.trim()) checkField(field);
+      });
+    }
   });
 
   contactForm.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (isSending) return;
+    submitAttempted = true;
+    setStatus('', '');
 
     let firstInvalid = null;
-    requiredFields.forEach((field) => {
-      if (field.checkValidity()) {
-        clearFieldError(field);
-      } else {
-        showFieldError(field);
-        if (!firstInvalid) firstInvalid = field;
-      }
+    fields.forEach((field) => {
+      if (!checkField(field) && !firstInvalid) firstInvalid = field;
     });
 
     if (firstInvalid) {
@@ -146,20 +196,40 @@ function initContactForm() {
       return;
     }
 
+    // Se envía sin espacios sobrantes al principio y al final.
+    fields.forEach((field) => {
+      if (field.type !== 'checkbox') field.value = field.value.trim();
+    });
+
     const data = new FormData(contactForm);
-    contactStatus.textContent = 'Enviando...';
+    isSending = true;
+    submitButton.disabled = true;
+    setStatus('sending', 'Enviando...');
 
     fetch('/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(data).toString(),
     })
-      .then(() => {
+      .then((response) => {
+        // fetch solo falla ante errores de red: un 404 o 500 de Netlify también
+        // es un envío que no llegó, y no debe mostrarse como exitoso.
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
         contactForm.reset();
-        contactStatus.textContent = 'Gracias, te responderemos a la brevedad.';
+        submitAttempted = false;
+        setStatus('success', '¡Gracias! Recibimos tu consulta y te responderemos a la brevedad.');
+
+        // Conversión: solo se cuenta si Netlify confirmó el envío, y solo se
+        // manda si la persona aceptó la analítica (lo decide consent.js).
+        if (typeof window.procomexTrack === 'function') window.procomexTrack('generate_lead');
       })
       .catch(() => {
-        contactStatus.textContent = 'Hubo un error al enviar. Escribinos a administracion@procomex.ar.';
+        setStatus('error', 'No pudimos enviar tu consulta. Probá de nuevo o escribinos a administracion@procomex.ar.');
+      })
+      .finally(() => {
+        isSending = false;
+        submitButton.disabled = false;
       });
   });
 }

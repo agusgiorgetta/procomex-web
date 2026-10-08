@@ -194,6 +194,14 @@
     }
   }
 
+  // Eventos de conversión (ej. generate_lead cuando el formulario se envió).
+  // Solo se mandan si la persona aceptó la analítica; si no, se descartan en
+  // vez de quedar en cola y enviarse recién cuando acepte.
+  window.procomexTrack = function (eventName, params) {
+    if (currentChoice !== 'granted') return;
+    gtag('event', eventName, params || {});
+  };
+
   document.addEventListener('click', function (event) {
     var trigger = event.target.closest('[data-cookie-settings]');
     if (!trigger) return;

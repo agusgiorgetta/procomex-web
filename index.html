@@ -315,25 +315,28 @@
             <label>No completar: <input name="bot-field" /></label>
           </p>
 
-          <label for="cf-nombre">Nombre y Apellido</label>
-          <input type="text" id="cf-nombre" name="nombre" placeholder="Nombre y Apellido" autocomplete="name" required />
+          <p class="contact-form-note">Los campos marcados con asterisco (<span aria-hidden="true">*</span>) son obligatorios.</p>
+
+          <label for="cf-nombre">Nombre y Apellido <span class="contact-form-required" aria-hidden="true">*</span></label>
+          <input type="text" id="cf-nombre" name="nombre" placeholder="Nombre y Apellido" autocomplete="name" autocapitalize="words" maxlength="80" required />
           <span class="field-error" id="cf-nombre-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
-          <label for="cf-email">Email</label>
-          <input type="email" id="cf-email" name="email" placeholder="tu@mail.com" autocomplete="email" required />
+          <label for="cf-email">Email <span class="contact-form-required" aria-hidden="true">*</span></label>
+          <input type="email" id="cf-email" name="email" placeholder="tu@mail.com" autocomplete="email" maxlength="254" required />
           <span class="field-error" id="cf-email-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
           <label for="cf-telefono">Teléfono <span class="contact-form-optional">(opcional)</span></label>
-          <input type="tel" id="cf-telefono" name="telefono" placeholder="Ej: 11 2345 6789" autocomplete="tel" />
-          <p class="contact-form-hint">Dejanos tu número para contactarte más rápido.</p>
+          <input type="tel" id="cf-telefono" name="telefono" placeholder="Ej: 11 2345 6789" autocomplete="tel" maxlength="25" aria-describedby="cf-telefono-hint" />
+          <span class="field-error" id="cf-telefono-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
+          <p class="contact-form-hint" id="cf-telefono-hint">Dejanos tu número para contactarte más rápido.</p>
 
-          <label for="cf-mensaje">Mensaje</label>
-          <textarea id="cf-mensaje" name="mensaje" placeholder="Escribí tu consulta" required></textarea>
+          <label for="cf-mensaje">Mensaje <span class="contact-form-required" aria-hidden="true">*</span></label>
+          <textarea id="cf-mensaje" name="mensaje" placeholder="Escribí tu consulta" maxlength="2000" required></textarea>
           <span class="field-error" id="cf-mensaje-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
           <div class="contact-form-consent">
             <input type="checkbox" id="cf-consentimiento" name="consentimiento" value="Acepta los Términos y Condiciones y la Política de Privacidad" required />
-            <label for="cf-consentimiento">He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a> del sitio.</label>
+            <label for="cf-consentimiento">He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a> del sitio. <span class="contact-form-required" aria-hidden="true">*</span></label>
           </div>
           <span class="field-error" id="cf-consentimiento-error"><span class="field-error-icon">?</span><span class="field-error-text"></span></span>
 
@@ -351,6 +354,7 @@
   </div>
 
   <!-- Menú mobile, animaciones al scroll, formulario de contacto y acordeón de FAQ -->
+  <script src="assets/js/contact-validation.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/consent.js" defer></script>
   <script src="assets/js/copyright-year.js" defer></script>
